@@ -1,0 +1,422 @@
+/* static/style.css */
+
+/* General Styles */
+body {
+    font-family: 'Open Sans', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+h1, h2 {
+    color: #2c3e50;
+}
+
+h1 {
+    font-size: 28px;
+}
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    width: 240px;
+    height: 100%;
+    background-color: #2c3e50;
+    padding-top: 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    color: white;
+}
+
+.sidebar h2 {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar ul li {
+    padding: 12px 20px;
+    transition: background-color 0.3s;
+}
+
+.sidebar ul li a {
+    font-size: 16px;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar ul li a i {
+    margin-right: 10px;
+}
+
+.sidebar ul li:hover {
+    background-color: #34495e;
+}
+
+/* Main Content */
+.main-content {
+    margin-left: 240px;
+    padding: 20px;
+    background-color: #ffffff;
+    min-height: 100vh;
+    transition: margin-left 0.3s;
+}
+
+/* Header */
+.header {
+    background-color: #3498db;
+    padding: 15px 20px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0 0 8px 8px;
+}
+
+.header h1 {
+    font-size: 24px;
+    margin: 0;
+}
+
+.header-right a {
+    color: white;
+    margin-left: 20px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s;
+}
+
+.header-right a i {
+    margin-right: 5px;
+}
+
+.header-right a:hover {
+    color: #ecf0f1;
+}
+
+/* Content Area */
+.content-area {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
+}
+
+.content-area h2 {
+    margin-top: 0;
+    font-size: 22px;
+    color: #2c3e50;
+}
+
+.content-area p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #555;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+table th, table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+table th {
+    background-color: #3498db;
+    color: white;
+    font-size: 16px;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Buttons */
+button, .button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 5px 0;
+}
+
+button:hover, .button:hover {
+    background-color: #2980b9;
+}
+
+button:disabled, .button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+
+/* Forms */
+form {
+    margin: 20px 0;
+}
+
+form label {
+    font-size: 16px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+form input[type="text"], form input[type="email"], form input[type="password"], form select, form textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+form textarea {
+    resize: vertical;
+    height: 100px;
+}
+
+/* Flash Messages */
+.messages {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.messages li {
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.messages .success {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.messages .error {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.messages .warning {
+    background-color: #f39c12;
+    color: white;
+}
+
+/* Tab Navigation */
+.tab-container {
+    display: flex;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 15px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #2c3e50;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    background-color: #f4f7fa;
+    transition: background-color 0.3s;
+}
+
+.tab:hover, .tab.active {
+    background-color: #3498db;
+    color: white;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    padding: 20px;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header h1 {
+        margin-bottom: 10px;
+    }
+
+    .content-area {
+        padding: 15px;
+    }
+}
+
+/* Classroom Details Section */
+.classroom-details {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.classroom-details .details p {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+/* Attendance Records Table */
+.attendance-records {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.attendance-records table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.attendance-records table th, .attendance-records table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.attendance-records table th {
+    background-color: #3498db;
+    color: white;
+    font-size: 16px;
+}
+
+.attendance-records table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.attendance-records table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.face-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Attendance Capture Section */
+.attendance-capture {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.attendance-capture form {
+    display: flex;
+    flex-direction: column;
+}
+
+.attendance-capture label {
+    font-size: 16px;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.attendance-capture input[type="text"],
+.attendance-capture select,
+.attendance-capture input[type="file"] {
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+.attendance-capture button {
+    padding: 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.attendance-capture button:hover {
+    background-color: #2980b9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-container {
+        width: 95%;
+    }
+
+    .attendance-records table th, .attendance-records table td {
+        font-size: 14px;
+    }
+
+    .attendance-capture input[type="text"],
+    .attendance-capture select,
+    .attendance-capture input[type="file"] {
+        font-size: 14px;
+    }
+}
+

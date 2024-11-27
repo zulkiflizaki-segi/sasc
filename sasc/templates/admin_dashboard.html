@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* Tab Navigation */
+        .tab-container {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #2c3e50;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            background-color: #f4f7fa;
+            transition: background-color 0.3s;
+        }
+
+        .tab:hover, .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .date-time-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap; /* Ensures responsiveness */
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1; /* Distributes the input groups evenly */
+        }
+
+        .input-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <ul>
+            <li><a href="/admin/dashboard"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="/admin/classrooms"><i class="fas fa-chalkboard"></i> Manage Classrooms</a></li>
+            <li><a href="/admin/students"><i class="fas fa-user-graduate"></i> Manage Students</a></li>
+            <li><a href="/admin/teachers"><i class="fas fa-users"></i> Manage Teachers</a></li>
+            <li><a href="/admin/attendance"><i class="fas fa-calendar-check"></i> Attendance</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h1>Welcome!! Admin!!</h1>
+            <div class="header-right">
+                <a href="/settings" class="settings"><i class="fas fa-cog"></i> Settings</a>
+                <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-container">
+            <div class="tab active" onclick="openTab('addClassroom')">Add New Classroom</div>
+            <div class="tab" onclick="openTab('availableClassrooms')">Available Classrooms</div>
+            <div class="tab" onclick="openTab('enrollStudent')">Enroll Student in Classroom</div>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="addClassroom" class="tab-content active">
+            <h2>Add a New Classroom</h2>
+            <form action="/admin/add_classroom" method="POST">
+                <label for="room_number">Room Number:</label>
+                <input type="text" id="room_number" name="room_number" required>
+
+                <label for="subject">Subject:</label>
+                <input type="text" id="subject" name="subject" required>
+
+                <label for="teacher_id">Assign Teacher:</label>
+                <select id="teacher_id" name="teacher_id" required>
+                    {% for teacher in teachers %}
+                        <option value="{{ teacher[0] }}">{{ teacher[1] }}</option>
+                    {% endfor %}
+                </select><br>
+
+                <div class="date-time-container">
+                    <div class="input-group">
+                        <label for="start_date">Start Date:</label>
+                        <input type="date" id="start_date" name="start_date" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="start_time">Start Time:</label>
+                        <input type="time" id="start_time" name="start_time" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="end_date">End Date:</label>
+                        <input type="date" id="end_date" name="end_date" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="end_time">End Time:</label>
+                        <input type="time" id="end_time" name="end_time" required>
+                    </div>
+                </div>
+                <button type="submit">Add Classroom</button>
+            </form>
+        </div>
+
+        <div id="availableClassrooms" class="tab-content">
+            <h2>Available Classrooms</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Room Number</th>
+                        <th>Subject</th>
+                        <th>Teacher</th>
+                        <th>Date & Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for classroom in classrooms %}
+                    <tr>
+                        <td>{{ classroom[1] }}</td>
+                        <td>{{ classroom[2] }}</td>
+                        <td>{{ classroom[4] }}</td>
+                        <td>{{ classroom[3] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="enrollStudent" class="tab-content">
+            <h2>Enroll a Student in a Classroom</h2>
+            <form action="/admin/enroll_student" method="POST">
+                <label for="student_id">Select Student:</label>
+                <select id="student_id" name="student_id" required>
+                    {% for student in students %}
+                        <option value="{{ student[0] }}">{{ student[1] }}</option>
+                    {% endfor %}
+                </select><br>
+
+                <label for="classroom_id">Select Classroom:</label>
+                <select id="classroom_id" name="classroom_id" required>
+                    {% for classroom in classrooms %}
+                        <option value="{{ classroom[0] }}">{{ classroom[1] }} - {{ classroom[2] }}</option>
+                    {% endfor %}
+                </select><br>
+
+                <button type="submit">Enroll Student</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript function to handle tab switching
+        function openTab(tabId) {
+            // Hide all tab contents
+            var tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(function (content) {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            var tabs = document.querySelectorAll('.tab');
+            tabs.forEach(function (tab) {
+                tab.classList.remove('active');
+            });
+
+            // Show the selected tab content and make the tab active
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector('.tab[onclick="openTab(\'' + tabId + '\')"]').classList.add('active');
+        }
+    </script>
+</body>
+</html>

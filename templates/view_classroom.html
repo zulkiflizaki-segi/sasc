@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Classroom Details</h1>
+
+    <h2>Classroom Attendance Rate</h2>
+    <p>Total Classes: {{ class_attendance[0] }}</p>
+    <p>Attended Classes: {{ class_attendance[1] }}</p>
+    <p>Attendance Rate: {{ (class_attendance[1] / class_attendance[0]) * 100 if class_attendance[0] > 0 else 0 }}%</p>
+
+    <h2>Students Enrolled</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Total Classes</th>
+            <th>Attended Classes</th>
+            <th>Attendance Rate</th>
+            <th>Absent Reason</th>
+            <th>Update Reason</th>
+        </tr>
+        {% for student in students %}
+        <tr>
+            <td>{{ student[1] }}</td>
+            <td>{{ student[2] }}</td>
+            <td>{{ student[3] }}</td>
+            <td>{{ student[4] }}</td>
+            <td>{{ (student[4] / student[3]) * 100 if student[3] > 0 else 0 }}%</td>
+            <td>{{ student[5] }}</td>
+            <td>
+                <form action="{{ url_for('update_absent_reason', attendance_id=student[0]) }}" method="POST">
+                    <select name="evidence_type" required>
+                        <option value="MC">MC</option>
+                        <option value="hospitalization">Hospitalization Leave</option>
+                        <option value="parent_letter">Parent Letter</option>
+                    </select>
+                    <textarea name="absent_reason" placeholder="Enter absent reason"></textarea>
+                    <input type="hidden" name="classroom_id" value="{{ classroom_id }}">
+                    <button type="submit">Update</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

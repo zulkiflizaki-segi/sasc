@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Classroom</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="form-container">
+        <h2>Edit Classroom</h2>
+        <form action="{{ url_for('edit_classroom', classroom_id=classroom.id) }}" method="POST">
+            <label for="room_number">Room Number:</label>
+            <input type="text" id="room_number" name="room_number" value="{{ classroom.room_number }}" required>
+
+            <label for="subject">Subject:</label>
+            <input type="text" id="subject" name="subject" value="{{ classroom.subject }}" required>
+
+            <label for="datetime">Scheduled Time:</label>
+            <input type="datetime-local" id="datetime" name="datetime"
+                   value="{{ classroom.datetime.strftime('%Y-%m-%dT%H:%M:%S') }}" required>
+
+            <button type="submit">Save Changes</button>
+        </form>
+        <a href="{{ url_for('manage_classrooms') }}">Cancel</a>
+    </div>
+</body>
+</html>
+

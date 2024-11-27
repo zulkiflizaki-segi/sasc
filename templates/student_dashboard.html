@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* Tab Navigation */
+        .tab-container {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #2c3e50;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            background-color: #f4f7fa;
+            transition: background-color 0.3s;
+        }
+
+        .tab:hover, .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Dashboard</h2>
+        <ul>
+            <li><a href="/student/dashboard"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="/student/profile"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="/student/subjects"><i class="fas fa-book"></i> Subjects</a></li>
+            <li><a href="/student/attendance"><i class="fas fa-calendar-check"></i> Attendance</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h1>Welcome!! {{ session['username'] }}!!</h1>
+            <div class="header-right">
+                <a href="/settings" class="settings"><i class="fas fa-cog"></i> Settings</a>
+                <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="messages">
+            {% for category, message in messages %}
+              <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
+        <!-- Tab Navigation -->
+        <div class="tab-container">
+            <div class="tab active" onclick="openTab('subjects')">Enrolled Subjects</div>
+            <div class="tab" onclick="openTab('notifications')">Attendance Notifications</div>
+            <div class="tab" onclick="openTab('evidence')">Submit Absent Evidence</div>
+            <div class="tab" onclick="openTab('gamification')">Gamification</div>
+            <div class="tab" onclick="openTab('exam_results')">Exam Results</div>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="subjects" class="tab-content active">
+            <h2>Your Enrolled Subjects and Schedule</h2>
+            <table>
+                <tr>
+                    <th>Room Number</th>
+                    <th>Subject</th>
+                    <th>Datetime</th>
+                    <th>Teacher</th>
+                    <th>Total Classes</th>
+                    <th>Attended Classes</th>
+                    <th>Attendance Rate</th>
+                </tr>
+                {% for classroom in enrolled_classes %}
+                <tr>
+                    <td>{{ classroom[1] }}</td>
+                    <td>{{ classroom[2] }}</td>
+                    <td>{{ classroom[3] }}</td>
+                    <td>{{ classroom[4] }}</td>
+                    <td>{{ classroom[5] }}</td>
+                    <td>{{ classroom[6] }}</td>
+                    <td>{{ (classroom[6] / classroom[5]) * 100 if classroom[5] > 0 else 0 }}%</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div id="notifications" class="tab-content">
+            <h2>Attendance Notifications</h2>
+
+            <!-- Attendance Summary -->
+            <h3>Attendance Rates</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Room Number</th>
+                        <th>Subject</th>
+                        <th>Total Classes</th>
+                        <th>Attended Classes</th>
+                        <th>Absent Classes</th>
+                        <th>Attendance Rate (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for summary in attendance_summary %}
+                    <tr>
+                        <td>{{ summary.room_number }}</td>
+                        <td>{{ summary.subject }}</td>
+                        <td>{{ summary.total_classes }}</td>
+                        <td>{{ summary.attended_classes }}</td>
+                        <td>{{ summary.absent_classes }}</td>
+                        <td>{{ (summary.attended_classes / summary.total_classes) * 100 if summary.total_classes > 0 else 0 | round(2) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Detailed Notifications -->
+            <h3>Detailed Attendance Notifications</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Room Number</th>
+                        <th>Subject</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for notification in attendance_notifications %}
+                    <tr>
+                        <td>{{ notification.room_number }}</td>
+                        <td>{{ notification.subject }}</td>
+                        <td>{{ notification.attendance_date }}</td>
+                        <td>
+                            {% if notification.status == 'present' %}
+                            <span style="color: green;">Present</span>
+                            {% else %}
+                            <span style="color: red;">Absent</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="evidence" class="tab-content">
+            {% if classes_below_80 %}
+            <h2>Submit Absent Evidence</h2>
+            <p>Your attendance rate is below 80% in the following subjects. Please submit absent evidence.</p>
+            <ul>
+                {% for classroom in classes_below_80 %}
+                <li>
+                    {{ classroom.subject }} - Room {{ classroom.room_number }} (Attendance Rate:
+                    {{ (classroom.attended_classes / classroom.total_classes) * 100 | round(2) }}%)
+                </li>
+                {% endfor %}
+            </ul>
+
+            <form action="/student/upload_evidence" method="POST">
+                <label for="classroom_id">Select Classroom:</label>
+                <select id="classroom_id" name="classroom_id" required>
+                    {% for classroom in classes_below_80 %}
+                    <option value="{{ classroom.classroom_id }}">
+                        {{ classroom.subject }} - Room {{ classroom.room_number }}
+                    </option>
+                    {% endfor %}
+                </select><br>
+
+                <label for="evidence_type">Evidence Type:</label>
+                <select id="evidence_type" name="evidence_type" required>
+                    <option value="MC">Medical Certificate (MC)</option>
+                    <option value="hospitalization">Hospitalization Leave</option>
+                    <option value="parent_letter">Parent Letter</option>
+                </select><br>
+
+                <label for="evidence_message">Absent Reason:</label>
+                <textarea id="evidence_message" name="evidence_message"
+                          placeholder="Explain the reason for your absence..." required></textarea><br>
+
+                <button type="submit">Upload Evidence</button>
+            </form>
+            {% else %}
+            <p>Your attendance rate is above 80%. No need to submit absent evidence.</p>
+            {% endif %}
+        </div>
+
+        <div id="gamification" class="tab-content">
+            <h2>Gamification</h2>
+
+            <!-- Display Points and Badges -->
+            <h3>Your Achievements</h3>
+            <p>Total Points: {{ gamification_data.total_points }}</p>
+            <ul>
+                {% if gamification_data.badges %}
+                {% for badge in gamification_data.badges %}
+                <li>{{ badge }}</li>
+                {% endfor %}
+                {% else %}
+                <p>No badges earned yet. Attend classes to earn rewards!</p>
+                {% endif %}
+            </ul>
+
+            <!-- Leaderboard -->
+            <h3>Leaderboard</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rank, student in enumerate(leaderboard, start=1) %}
+                    <tr>
+                        <td>{{ rank }}</td>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.total_points }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+        <div id="exam_results" class="tab-content">
+            <h2>Exam Results</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Exam Type</th>
+                        <th>Score</th>
+                        <th>Attendance Rate (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in exam_results %}
+                    <tr>
+                        <td>{{ result.subject }}</td>
+                        <td>{{ result.exam_type }}</td>
+                        <td>{{ result.score }}</td>
+                        <td>{{ result.attendance_rate | round(2) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript function to handle tab switching
+        function openTab(tabId) {
+            // Hide all tab contents
+            var tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(function (content) {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            var tabs = document.querySelectorAll('.tab');
+            tabs.forEach(function (tab) {
+                tab.classList.remove('active');
+            });
+
+            // Show the selected tab content and make the tab active
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector('.tab[onclick="openTab(\'' + tabId + '\')"]').classList.add('active');
+        }
+    </script>
+</body>
+</html>
+

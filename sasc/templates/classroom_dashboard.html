@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>Classroom Dashboard</h1>
+        </header>
+
+        <!-- Classroom Details Section -->
+        <section class="classroom-details">
+            <h2>Classroom Details</h2>
+            <div class="details">
+                <p><strong>Class Name:</strong> {{ classroom.room_number }}</p>
+                <p><strong>Subject:</strong> {{ classroom.subject }}</p>
+                <p><strong>Teacher:</strong> {{ classroom.teacher_name }}</p>
+                <p><strong>Start Date:</strong> {{ classroom.start_date }}</p>
+                <p><strong>End Date:</strong> {{ classroom.end_date }}</p>
+                <p><strong>Start Time:</strong> {{ classroom.start_time }}</p>
+                <p><strong>End Time:</strong> {{ classroom.end_time }}</p>
+            </div>
+        </section>
+
+        <!-- Attendance Records Table -->
+        <section class="attendance-records">
+            <h2>Attendance Records</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Role</th>
+                        <th>Face Image</th>
+                        <th>Date & Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance_records %}
+                    <tr>
+                        <td>{{ record.student_id or record.teacher_id }}</td>
+                        <td>{{ record.role }}</td>
+                        <td><img src="{{ url_for('static', filename=record.face_image_path) }}" alt="Face Image" class="face-image"></td>
+                        <td>{{ record.timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Attendance Capture Form -->
+        <section class="attendance-capture">
+            <h2>Capture Attendance</h2>
+            <form action="/classroom/capture" method="POST">
+                <label for="user_id">Enter Student/Teacher ID:</label>
+                <input type="text" id="user_id" name="user_id" placeholder="Enter ID" required>
+
+                <label for="role">Select Role:</label>
+                <select id="role" name="role" required>
+                    <option value="student">Student</option>
+                    <option value="teacher">Teacher</option>
+                </select>
+
+                <button type="button" class="submit-button" onclick="startLiveCapture()">Start Live Capture</button>
+            </form>
+        </section>
+
+        <!-- Video element to show live feed -->
+        <div id="live-feed" style="display: none;">
+            <video id="video" width="640" height="480" autoplay></video>
+            <button onclick="stopLiveCapture()">Stop Capture</button>
+        </div>
+    </div>
+
+    <!-- JavaScript for live video feed -->
+    <script>
+        const video = document.getElementById('video');
+        let stream = null;
+
+        function startLiveCapture() {
+            document.getElementById('live-feed').style.display = 'block';
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(s => {
+                    stream = s;
+                    video.srcObject = stream;
+                })
+                .catch(error => {
+                    alert('Error accessing camera: ' + error.message);
+                });
+        }
+
+        function stopLiveCapture() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            document.getElementById('live-feed').style.display = 'none';
+            video.srcObject = null;
+        }
+    </script>
+
+</body>
+</html>
+

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* Tab Navigation */
+        .tab-container {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #2c3e50;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            background-color: #f4f7fa;
+            transition: background-color 0.3s;
+        }
+
+        .tab:hover, .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Teacher Dashboard</h2>
+        <ul>
+            <li><a href="/teacher/dashboard"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="/teacher/classrooms"><i class="fas fa-chalkboard"></i> Manage Classrooms</a></li>
+            <li><a href="/teacher/students"><i class="fas fa-user-graduate"></i> Student List</a></li>
+            <li><a href="/teacher/attendance"><i class="fas fa-calendar-check"></i> Attendance</a></li>
+            <li><a href="/teacher/reports"><i class="fas fa-chart-bar"></i> Student Reports</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h1>Welcome!! {{ session['username'] }}!!</h1>
+            <div class="header-right">
+                <a href="/settings" class="settings"><i class="fas fa-cog"></i> Settings</a>
+                <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-container">
+            <div class="tab active" onclick="openTab('classrooms')">Classrooms</div>
+            <div class="tab" onclick="openTab('attendance')">Attendance</div>
+            <div class="tab" onclick="openTab('reports')">Reports</div>
+            <div class="tab" onclick="openTab('exam-results')">Exam Results</div>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="classrooms" class="tab-content active">
+            <h2>Your Classrooms</h2>
+            <table>
+                <tr>
+                    <th>Room Number</th>
+                    <th>Subject</th>
+                    <th>Datetime</th>
+                    <th>Enrolled Students</th>
+                    <th>View</th>
+                </tr>
+                {% for classroom in classrooms %}
+                <tr>
+                    <td>{{ classroom.room_number }}</td>
+                    <td>{{ classroom.subject }}</td>
+                    <td>{{ classroom.datetime }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_classroom', classroom_id=classroom.id) }}">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div id="attendance" class="tab-content">
+            <h2>Attendance Records</h2>
+            <p>View and manage attendance for your classes.</p>
+            <!-- Attendance Records Table -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Room Number</th>
+                        <th>Subject</th>
+                        <th>Student Name</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance_records %}
+                    <tr>
+                        <td>{{ record.room_number }}</td>
+                        <td>{{ record.subject }}</td>
+                        <td>{{ record.student_name }}</td>
+                        <td>{{ record.attendance_date }}</td>
+                        <td>{{ record.status }}</td>
+                        <td>
+                            <form action="{{ url_for('update_attendance') }}" method="POST" style="display: inline-block;">
+                                <input type="hidden" name="attendance_id" value="{{ record.attendance_id }}">
+                                <select name="status">
+                                    <option value="present" {% if record.status == 'present' %}selected{% endif %}>Present</option>
+                                    <option value="absent" {% if record.status == 'absent' %}selected{% endif %}>Absent</option>
+                                </select>
+                                <button type="submit">Save</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="reports" class="tab-content">
+            <h2>Student Reports</h2>
+            <p>Analyze student performance and generate reports.</p>
+            <!-- Attendance Report -->
+            <h3>Class Attendance Summary</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Classroom</th>
+                        <th>Student Name</th>
+                        <th>Total Classes</th>
+                        <th>Attended</th>
+                        <th>Attendance Rate (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance_summary %}
+                    <tr>
+                        <td>{{ record.room_number }} - {{ record.subject }}</td>
+                        <td>{{ record.student_name }}</td>
+                        <td>{{ record.total_classes }}</td>
+                        <td>{{ record.attended_classes }}</td>
+                        <td>{{ (record.attended_classes / record.total_classes) * 100 if record.total_classes > 0 else 0 | round(2) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tab Content for Exam Results -->
+        <div id="exam-results" class="tab-content">
+            <h2>Exam Results</h2>
+
+            <!-- Display Exam Results -->
+            <h3>View Exam Results</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Classroom</th>
+                        <th>Student Name</th>
+                        <th>Exam Type</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in exam_results %}
+                    <tr>
+                        <td>{{ result.room_number }} - {{ result.subject }}</td>
+                        <td>{{ result.student_name }}</td>
+                        <td>{{ result.exam_type }}</td>
+                        <td>{{ result.score }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Upload Exam Scores -->
+            <h3>Upload Exam Scores</h3>
+            <form action="{{ url_for('upload_score') }}" method="POST">
+                <label for="classroom_id">Classroom:</label>
+                <select name="classroom_id" required>
+                    {% for classroom in classrooms %}
+                    <option value="{{ classroom.id }}">{{ classroom.room_number }} - {{ classroom.subject }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="student_id">Student:</label>
+                <input type="text" name="student_id" placeholder="Enter Student ID" required>
+
+                <label for="exam_type">Exam Type:</label>
+                <select name="exam_type" required>
+                    <option value="Mid-term">Mid-term</option>
+                    <option value="Final">Final</option>
+                </select>
+
+                <label for="score">Score:</label>
+                <input type="number" name="score" placeholder="Enter Score" required step="0.01">
+
+                <button type="submit">Upload Score</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript function to handle tab switching
+        function openTab(tabId) {
+            // Hide all tab contents
+            var tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(function (content) {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            var tabs = document.querySelectorAll('.tab');
+            tabs.forEach(function (tab) {
+                tab.classList.remove('active');
+            });
+
+            // Show the selected tab content and make the tab active
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector('.tab[onclick="openTab(\'' + tabId + '\')"]').classList.add('active');
+        }
+    </script>
+</body>
+</html>
